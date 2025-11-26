@@ -19,29 +19,36 @@ export async function GET(request: NextRequest) {
       where: { email: email.toLowerCase() },
     });
 
-    if (!member) {
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404 }
-      );
-    }
+    let signatureData;
 
-    // Check if signature is enabled
-    if (!member.signature) {
+    if (!member) {
+      // Use fallback signature with default values
+      signatureData = {
+        firstName: "Firstname",
+        lastName: "Lastname",
+        designation: "Designation",
+        contactNumber: "Contact",
+        email: email,
+      };
+    } else if (!member.signature) {
+      // Check if signature is enabled
       return NextResponse.json(
         { error: "Signature is disabled for this member" },
         { status: 403 }
       );
+    } else {
+      // Use member data
+      signatureData = {
+        firstName: member.firstName,
+        lastName: member.lastName,
+        designation: member.designation,
+        contactNumber: member.contactNumber,
+        email: member.email,
+      };
     }
 
     // Generate HTML signature
-    const signatureHtml = generateSignatureHtml({
-      firstName: member.firstName,
-      lastName: member.lastName,
-      designation: member.designation,
-      contactNumber: member.contactNumber,
-      email: member.email,
-    });
+    const signatureHtml = generateSignatureHtml(signatureData);
 
     // Return HTML with proper content type
     return new NextResponse(signatureHtml, {
