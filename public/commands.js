@@ -31,12 +31,52 @@ async function insertSignatureLogic(event, isAuto = false) {
   // Get the current email item
   const item = Office.context.mailbox.item;
   
-  // Get user email
-  const userEmail = Office.context.mailbox.userProfile.emailAddress;
+  // Get user email from the From field
+  return new Promise((resolve) => {
+    item.from.getAsync(function(result) {
+      if (result.status !== Office.AsyncResultStatus.Succeeded) {
+        console.error("Failed to get sender email:", result.error);
+        
+        // Fallback to userProfile email
+        const fallbackEmail = Office.context.mailbox.userProfile.emailAddress;
+        console.log("Using fallback email from userProfile:", fallbackEmail);
+        continueWithEmail(fallbackEmail, item, event, isAuto);
+        resolve();
+        return;
+      }
+      
+      const fromEmail = result.value.emailAddress;
+      console.log("Sender email from item.from:", fromEmail);
+      continueWithEmail(fromEmail, item, event, isAuto);
+      resolve();
+    });
+  });
+}
+
+// Continue with the email insertion logic
+async function continueWithEmail(userEmail, item, event, isAuto) {
   console.log("User email:", userEmail);
   
+  // Ensure email is a string and trim whitespace
+  const cleanEmail = String(userEmail || "").trim().toLowerCase();
+  console.log("Clean email for API:", cleanEmail);
+  
+  if (!cleanEmail) {
+    console.error("No email address found");
+    if (!isAuto) {
+      Office.context.mailbox.item.notificationMessages.addAsync("signatureError", {
+        type: "errorMessage",
+        message: "Could not retrieve your email address.",
+        icon: "Icon.80x80",
+        persistent: false
+      });
+    }
+    if (event) event.completed();
+    return;
+  }
+  
   // Fetch signature from API
-  const signatureHtml = await fetchSignature(userEmail);
+  const signatureHtml = await fetchSignature(cleanEmail);
   
   if (!signatureHtml) {
     console.error("Failed to fetch signature");
