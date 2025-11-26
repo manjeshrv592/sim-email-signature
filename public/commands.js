@@ -4,44 +4,56 @@ Office.onReady(() => {
   console.log("Commands loaded successfully!");
 });
 
+// API endpoint for signatures
+const API_BASE_URL = "https://sim-email-signature.vercel.app";
+
+// Helper function to fetch signature from API
+async function fetchSignature(userEmail) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/signature?email=${encodeURIComponent(userEmail)}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+      console.error("API Error:", errorData.error);
+      return null;
+    }
+    
+    const signatureHtml = await response.text();
+    return signatureHtml;
+  } catch (error) {
+    console.error("Error fetching signature:", error);
+    return null;
+  }
+}
+
 // Helper function to insert signature
-function insertSignatureLogic(event, isAuto = false) {
+async function insertSignatureLogic(event, isAuto = false) {
   // Get the current email item
   const item = Office.context.mailbox.item;
   
-  // The signature HTML to insert
-  const signatureHtml = `
-    <br/><br/>
-    <table style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
-      <tr>
-        <td style="padding-bottom: 10px;">
-          <strong>Manjesh R V</strong><br/>
-          <span style="color: #666;">Associate Software Developer</span>
-        </td>
-      </tr>
-      <tr>
-        <td style="padding-bottom: 10px;">
-          📞 <a href="tel:+919731400613" style="color: #333; text-decoration: none;">+91-9731400613</a>
-        </td>
-      </tr>
-      <tr>
-        <td style="padding-bottom: 15px;">
-          <strong>Simtech IT Solutions Private Limited</strong><br/>
-          <span style="font-size: 12px; color: #666;">
-            Gopalan Signature Towers, No.6, 3rd Floor,<br/>
-            Old Madras Road Nagavarapalya, C V Raman Nagar,<br/>
-            Bengaluru - 560093, Karnataka, India
-          </span>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <img src="https://sim-email-signature.vercel.app/simtech-logo.png" alt="Simtech Logo" height="40" style="vertical-align: middle; margin-right: 15px;"/>
-          <img src="https://sim-email-signature.vercel.app/iso-logo.png" alt="ISO Logo" height="40" style="vertical-align: middle;"/>
-        </td>
-      </tr>
-    </table>
-  `;
+  // Get user email
+  const userEmail = Office.context.mailbox.userProfile.emailAddress;
+  console.log("User email:", userEmail);
+  
+  // Fetch signature from API
+  const signatureHtml = await fetchSignature(userEmail);
+  
+  if (!signatureHtml) {
+    console.error("Failed to fetch signature");
+    
+    if (!isAuto) {
+      // Show error notification for manual clicks
+      Office.context.mailbox.item.notificationMessages.addAsync("signatureError", {
+        type: "errorMessage",
+        message: "Failed to load signature. Please try again or contact support.",
+        icon: "Icon.80x80",
+        persistent: false
+      });
+    }
+    
+    if (event) event.completed();
+    return;
+  }
   
   // Get the current body content
   item.body.getAsync(Office.CoercionType.Html, function (result) {
