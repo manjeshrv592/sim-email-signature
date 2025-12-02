@@ -72,7 +72,7 @@ export function generateSignatureHtml(data: SignatureData): string {
             </tr>
             <tr>
               <td>
-                <div style="padding-left: 30px; padding-top: 8px;">
+                <div style="padding-left: 27px; padding-top: 8px;">
                   <div style="font-size: 14px; margin-bottom: 4px">
                     3rd, Floor, No.6, Old Madras Road, Nagavarapalya,
                   </div>
