@@ -1,7 +1,18 @@
 /* global Office */
 
-Office.onReady(() => {
-  console.log("Commands loaded successfully!");
+Office.onReady((info) => {
+  console.log("=== Commands.js loaded ===");
+  console.log("Host:", info.host);
+  console.log("Platform:", info.platform);
+  console.log("Mailbox diagnostics:", Office.context.mailbox.diagnostics);
+  
+  // Check if event-based activation is supported
+  if (Office.context.requirements.isSetSupported('Mailbox', '1.10')) {
+    console.log("✅ Mailbox 1.10 is supported - event-based activation should work");
+  } else {
+    console.log("❌ Mailbox 1.10 NOT supported - event-based activation may not work");
+    console.log("Supported version:", Office.context.mailbox.diagnostics.hostVersion);
+  }
 });
 
 // API endpoint for signatures
@@ -147,7 +158,10 @@ function insertSignature(event) {
 
 // Automatic event handler
 function autoInsertSignature(event) {
-  console.log("Auto-inserting signature...");
+  console.log("=== AUTO-INSERT TRIGGERED ===");
+  console.log("Event object:", event);
+  console.log("Event type:", event ? event.type : "no event");
+  console.log("Timestamp:", new Date().toISOString());
   insertSignatureLogic(event, true);
 }
 
