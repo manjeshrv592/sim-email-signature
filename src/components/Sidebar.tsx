@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, User } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 
 export default function Sidebar() {
   return (
@@ -8,10 +8,6 @@ export default function Sidebar() {
         <li className="p-2 pl-4 flex gap-2 items-center">
             <LayoutDashboard size={16} />
             <Link href="/">Dashboard</Link>
-        </li>
-         <li className="p-2 pl-4 flex gap-2 items-center">
-            <User size={16} />
-            <Link href="/members">Members</Link>
         </li>
       </ul>
     </div>
