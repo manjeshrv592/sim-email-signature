@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getUserByEmail } from "@/lib/microsoft-graph";
 import { generateSignatureHtml } from "@/lib/signature-template";
 
 export async function GET(request: NextRequest) {
@@ -14,15 +14,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Find member by email
-    const member = await db.member.findUnique({
-      where: { email: email.toLowerCase() },
-    });
+    // Fetch user from Microsoft Graph API (Azure AD)
+    const user = await getUserByEmail(email.toLowerCase());
 
     let signatureData;
 
-    if (!member) {
-      // Use fallback signature with default values
+    if (!user) {
+      // Fallback for users not in Azure AD
+      console.log(`User ${email} not found in Azure AD, using fallback`);
       signatureData = {
         firstName: "Firstname",
         lastName: "Lastname",
@@ -30,22 +29,15 @@ export async function GET(request: NextRequest) {
         contactNumber: "Contact",
         email: email,
       };
-    } else if (!member.signature) {
-      // Check if signature is enabled
-      return NextResponse.json(
-        { error: "Signature is disabled for this member" },
-        { status: 403 }
-      );
     } else {
-      // Use member data
+      // Map Azure AD fields to signature data
       signatureData = {
-        firstName: member.firstName,
-        lastName: member.lastName,
-        designation: member.designation,
-        contactNumber: member.contactNumber,
-        email: member.email,
-        countryCode: member.countryCode,
-        country: member.country,
+        firstName: user.givenName || "Firstname",
+        lastName: user.surname || "Lastname",
+        designation: user.jobTitle || "Designation",
+        // Prefer mobilePhone, fallback to first business phone
+        contactNumber: user.mobilePhone || user.businessPhones[0] || "Contact",
+        email: user.mail || email,
       };
     }
 
@@ -62,9 +54,25 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("API Error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    
+    // Return fallback signature on error
+    const email = request.nextUrl.searchParams.get("email") || "user@company.com";
+    const fallbackSignatureData = {
+      firstName: "User",
+      lastName: "",
+      designation: "Employee",
+      contactNumber: "",
+      email: email,
+    };
+    
+    const fallbackHtml = generateSignatureHtml(fallbackSignatureData);
+    
+    return new NextResponse(fallbackHtml, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/html",
+        "Cache-Control": "no-cache",
+      },
+    });
   }
 }
