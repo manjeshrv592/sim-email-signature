@@ -4,8 +4,11 @@ interface SignatureData {
   designation: string;
   contactNumber: string;
   email: string;
+  // Location fields for region-based signatures (future use)
   countryCode?: string | null;
   country?: string | null;
+  usageLocation?: string | null;
+  city?: string | null;
 }
 
 export function generateSignatureHtml(data: SignatureData): string {

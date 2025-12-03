@@ -14,6 +14,13 @@ interface GraphUser {
   officeLocation: string | null;
   userPrincipalName: string;
   id: string;
+  // Location fields for region-based signatures
+  country: string | null;
+  usageLocation: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
+  streetAddress: string | null;
 }
 
 interface AccessTokenResponse {
@@ -89,7 +96,8 @@ export async function getUserByEmail(email: string): Promise<GraphUser | null> {
   try {
     const accessToken = await getAccessToken();
 
-    const userUrl = `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(email)}`;
+    // Request additional location fields for region-based signature customization
+    const userUrl = `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(email)}?$select=displayName,givenName,surname,mail,jobTitle,mobilePhone,businessPhones,officeLocation,country,usageLocation,city,state,postalCode,streetAddress,userPrincipalName,id`;
 
     const response = await fetch(userUrl, {
       method: 'GET',

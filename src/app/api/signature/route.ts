@@ -14,6 +14,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Block official production domain during testing
+    if (email.toLowerCase().endsWith("@simtechitsolutions.in")) {
+      return new NextResponse("", {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html",
+        },
+      });
+    }
+
     // Fetch user from Microsoft Graph API (Azure AD)
     const user = await getUserByEmail(email.toLowerCase());
 
@@ -38,6 +48,10 @@ export async function GET(request: NextRequest) {
         // Prefer mobilePhone, fallback to first business phone
         contactNumber: user.mobilePhone || user.businessPhones[0] || "Contact",
         email: user.mail || email,
+        // Location fields for region-based signatures
+        country: user.country,
+        usageLocation: user.usageLocation,
+        city: user.city,
       };
     }
 
