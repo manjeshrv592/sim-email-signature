@@ -4,6 +4,8 @@ interface SignatureData {
   designation: string;
   contactNumber: string;
   email: string;
+  countryCode?: string | null;
+  country?: string | null;
 }
 
 export function generateSignatureHtml(data: SignatureData): string {
@@ -13,6 +15,14 @@ export function generateSignatureHtml(data: SignatureData): string {
       <tr>
         <td style="padding-right: 20px; vertical-align: middle;">
           <div>
+            ${data.countryCode ? `
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <div style="width: 24px; height: 24px; border-radius: 50%; overflow: hidden; border: 1px solid #d4d4d4; display: inline-flex; align-items: center; justify-content: center;">
+                  <img src="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/flags/${data.countryCode}.svg" alt="${data.country || 'Country'}" style="width: 24px; height: 24px; object-fit: cover;" />
+                </div>
+                <span style="font-size: 14px; color: #525252;">${data.country}</span>
+              </div>
+            ` : ''}
             <div
               style="
                 font-weight: bold;

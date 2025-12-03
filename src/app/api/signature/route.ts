@@ -44,6 +44,8 @@ export async function GET(request: NextRequest) {
         designation: member.designation,
         contactNumber: member.contactNumber,
         email: member.email,
+        countryCode: member.countryCode,
+        country: member.country,
       };
     }
 

@@ -18,6 +18,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Edit, Trash2, Check, X } from "lucide-react";
+import Image from "next/image";
+import { DeleteButton } from "./components/DeleteButton";
 
 interface MembersPageProps {
   searchParams: Promise<{ page?: string }>;
@@ -40,19 +42,20 @@ export default async function MembersPage({ searchParams }: MembersPageProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[80px]">SI.NO</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Designation</TableHead>
-              <TableHead className="w-[120px]">Signature</TableHead>
-              <TableHead className="w-[100px] text-right">Actions</TableHead>
+              <TableHead className="w-[80px] text-center">SI.NO</TableHead>
+              <TableHead className="text-center">Name</TableHead>
+              <TableHead className="text-center">Email</TableHead>
+              <TableHead className="text-center">Phone</TableHead>
+              <TableHead className="text-center">Designation</TableHead>
+              <TableHead className="w-[80px] text-center">Country</TableHead>
+              <TableHead className="w-[120px] text-center">Signature</TableHead>
+              <TableHead className="w-[100px] text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {members.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center h-24 text-muted-foreground">
                   No members found. Create your first member to get started.
                 </TableCell>
               </TableRow>
@@ -61,34 +64,52 @@ export default async function MembersPage({ searchParams }: MembersPageProps) {
                 const serialNumber = (currentPage - 1) * 10 + index + 1;
                 return (
                   <TableRow key={member.id}>
-                    <TableCell className="font-medium">{serialNumber}</TableCell>
-                    <TableCell>{`${member.firstName} ${member.lastName}`}</TableCell>
-                    <TableCell>{member.email}</TableCell>
-                    <TableCell>{member.contactNumber}</TableCell>
-                    <TableCell>{member.designation}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
+                    <TableCell className="font-medium text-center">{serialNumber}</TableCell>
+                    <TableCell className="text-center">{`${member.firstName} ${member.lastName}`}</TableCell>
+                    <TableCell className="text-center">{member.email}</TableCell>
+                    <TableCell className="text-center">{member.contactNumber}</TableCell>
+                    <TableCell className="text-center">{member.designation}</TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center">
+                        {member.countryCode ? (
+                          <div className="w-6 h-6 rounded-full overflow-hidden border border-gray-200 flex items-center justify-center">
+                            <Image
+                              src={`/flags/${member.countryCode}.svg`}
+                              alt={member.country || "Country flag"}
+                              width={24}
+                              height={24}
+                              className="w-6 h-6 object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 text-sm">NA</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-2">
                         {member.signature ? (
                           <>
                             <Check className="h-4 w-4 text-green-600" />
-                            <span className="text-sm">Enabled</span>
                           </>
                         ) : (
                           <>
                             <X className="h-4 w-4 text-red-600" />
-                            <span className="text-sm">Disabled</span>
                           </>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                    <TableCell className="text-center">
+                      <div className="flex justify-center gap-2">
+                        <Link href={`/members/edit/${member.id}`}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                        <DeleteButton 
+                          memberId={member.id} 
+                          memberName={`${member.firstName} ${member.lastName}`}
+                        />
                       </div>
                     </TableCell>
                   </TableRow>
