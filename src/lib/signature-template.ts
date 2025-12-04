@@ -106,16 +106,20 @@ export function generateSignatureHtml(data: SignatureData): string {
         <td colspan="2" style="padding-top: 16px;">
           <div style="border-top: 1px solid #e5e5e5; padding-top: 12px;">
             <div style="font-size: 11px; color: #737373; margin-bottom: 8px;">Certified & Compliant</div>
-            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-              ${certifications.map(cert => `
-                <img 
-                  src="${cert.base64}" 
-                  alt="${cert.alt}" 
-                  title="${cert.name}"
-                  style="height: 40px; width: auto; object-fit: contain;"
-                />
-              `).join('')}
-            </div>
+            <table cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                ${certifications.map((cert, index) => `
+                  <td style="padding-right: ${index < certifications.length - 1 ? '10px' : '0'}; vertical-align: middle;">
+                    <img 
+                      src="${cert.base64}" 
+                      alt="${cert.alt}" 
+                      title="${cert.name}"
+                      style="height: 40px; width: auto; display: block;"
+                    />
+                  </td>
+                `).join('')}
+              </tr>
+            </table>
           </div>
         </td>
       </tr>
