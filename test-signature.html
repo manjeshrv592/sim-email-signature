@@ -1,40 +1,10 @@
-import { getCertificationLogos } from './certifications';
-import { getOfficeAddress } from './addresses';
 
-interface SignatureData {
-  firstName: string;
-  lastName: string;
-  designation: string;
-  contactNumber: string;
-  email: string;
-  // Location fields for region-based signatures (future use)
-  countryCode?: string | null;
-  country?: string | null;
-  usageLocation?: string | null;
-  city?: string | null;
-}
-
-export function generateSignatureHtml(data: SignatureData): string {
-  // Get certification logos based on user's country
-  const certifications = getCertificationLogos(data.usageLocation);
-  
-  // Get office address based on user's country
-  const address = getOfficeAddress(data.usageLocation);
-  
-  return `
     <br/><br/>
     <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif">
       <tr>
         <td style="padding-right: 20px; vertical-align: middle;">
           <div>
-            ${data.countryCode ? `
-              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                <div style="width: 24px; height: 24px; border-radius: 50%; overflow: hidden; border: 1px solid #d4d4d4; display: inline-flex; align-items: center; justify-content: center;">
-                  <img src="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/flags/${data.countryCode}.svg" alt="${data.country || 'Country'}" style="width: 24px; height: 24px; object-fit: cover;" />
-                </div>
-                <span style="font-size: 14px; color: #525252;">${data.country}</span>
-              </div>
-            ` : ''}
+            
             <div
               style="
                 font-weight: bold;
@@ -42,13 +12,13 @@ export function generateSignatureHtml(data: SignatureData): string {
                 margin-bottom: 4px;
               "
             >
-              ${data.firstName} ${data.lastName}
+              Manjesh Vishwanath
             </div>
             <div style="font-size: 14px; margin-bottom: 4px">
-              ${data.designation}
+              Associate Software Engineer
             </div>
             <div style="font-size: 14px; color: #737373">
-              Ph - ${data.contactNumber}
+              Ph - 9731400613
             </div>
           </div>
         </td>
@@ -73,8 +43,20 @@ export function generateSignatureHtml(data: SignatureData): string {
                           margin-top: -8px;
                         "
                       >
-                        ${address.buildingName}
+                        Gopalan Signature Tower
                       </div>
+                    </td>
+                    <td style="vertical-align: bottom; padding-left: 48px;">
+                      <img
+                        src="https://sim-email-signature.vercel.app/iso-logo.png"
+                        alt="ISO Logo"
+                        height="64"
+                        style="
+                          height: 64px;
+                          width: auto;
+                          display: block;
+                        "
+                      />
                     </td>
                   </tr>
                 </table>
@@ -84,10 +66,10 @@ export function generateSignatureHtml(data: SignatureData): string {
               <td>
                 <div style="padding-left: 27px; padding-top: 8px;">
                   <div style="font-size: 14px; margin-bottom: 4px">
-                    ${address.addressLine1}
+                    3rd, Floor, No.6, Old Madras Road, Nagavarapalya,
                   </div>
                   <div style="font-size: 14px; margin-bottom: 4px">
-                    ${address.addressLine2}
+                    C.V.Raman Nagar, Bangalore - 560093
                   </div>
                   <div style="font-size: 14px; margin-bottom: 4px">
                     Website -
@@ -101,25 +83,45 @@ export function generateSignatureHtml(data: SignatureData): string {
           </table>
         </td>
       </tr>
-      ${certifications.length > 0 ? `
+      
       <tr>
         <td colspan="2" style="padding-top: 16px;">
           <div style="border-top: 1px solid #e5e5e5; padding-top: 12px;">
             <div style="font-size: 11px; color: #737373; margin-bottom: 8px;">Certified & Compliant</div>
             <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-              ${certifications.map(cert => `
+              
                 <img 
-                  src="${cert.base64}" 
-                  alt="${cert.alt}" 
-                  title="${cert.name}"
+                  src="https://sim-email-signature.vercel.app/certifications/iso-27001.png" 
+                  alt="ISO 27001 Certified - Information Security Management" 
+                  title="ISO 27001:2013"
                   style="height: 40px; width: auto; object-fit: contain;"
                 />
-              `).join('')}
+              
+                <img 
+                  src="https://sim-email-signature.vercel.app/certifications/iso-42001.png" 
+                  alt="ISO 42001 Certified - AI Management System" 
+                  title="ISO 42001:2023"
+                  style="height: 40px; width: auto; object-fit: contain;"
+                />
+              
+                <img 
+                  src="https://sim-email-signature.vercel.app/certifications/india/stpi.png" 
+                  alt="STPI Registered - Software Technology Parks of India" 
+                  title="STPI"
+                  style="height: 40px; width: auto; object-fit: contain;"
+                />
+              
+                <img 
+                  src="https://sim-email-signature.vercel.app/certifications/india/cmmi.png" 
+                  alt="CMMI Level 5 - Capability Maturity Model Integration" 
+                  title="CMMI Level 5"
+                  style="height: 40px; width: auto; object-fit: contain;"
+                />
+              
             </div>
           </div>
         </td>
       </tr>
-      ` : ''}
+      
     </table>
-  `;
-}
+  
