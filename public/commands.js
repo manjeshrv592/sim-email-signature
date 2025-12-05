@@ -109,7 +109,6 @@ async function continueWithEmail(userEmail, item, event, isAuto) {
   // Get the current body content
   item.body.getAsync(Office.CoercionType.Html, function (result) {
     if (result.status === Office.AsyncResultStatus.Succeeded) {
-      // Append the signature to the existing body
       const currentBody = result.value;
       
       // Simple check to avoid duplicate insertion if running automatically
@@ -120,24 +119,39 @@ async function continueWithEmail(userEmail, item, event, isAuto) {
         return;
       }
 
-      const newBody = currentBody + signatureHtml;
+      // Add typing space before signature so cursor appears above it
+      // Using <div> with contenteditable to ensure proper cursor placement
+      const signatureWithSpace = `<div><br></div>${signatureHtml}`;
       
-      // Set the new body content
-      item.body.setAsync(newBody, { coercionType: Office.CoercionType.Html }, function (setResult) {
-        if (setResult.status === Office.AsyncResultStatus.Succeeded) {
-          console.log('Signature inserted successfully');
-          
-          if (!isAuto) {
-            // Show a notification only for manual clicks
-            Office.context.mailbox.item.notificationMessages.addAsync("signatureNotification", {
-              type: "informationalMessage",
-              message: "Simtech signature inserted successfully! ✅",
-              icon: "Icon.80x80",
-              persistent: false
-            });
-          }
-        } else {
-          console.error('Error inserting signature:', setResult.error.message);
+      // Use setSelectedDataAsync to insert at cursor position
+      // This prevents duplication in replies and provides better UX
+      item.body.setSelectedDataAsync(
+        signatureWithSpace,
+        { coercionType: Office.CoercionType.Html },
+        function (setResult) {
+          if (setResult.status === Office.AsyncResultStatus.Succeeded) {
+            console.log('Signature inserted successfully');
+            
+            // Move cursor to the beginning of the email body
+            item.body.setSelectedDataAsync(
+              '',
+              { coercionType: Office.CoercionType.Html },
+              function() {
+                console.log('Cursor repositioned');
+              }
+            );
+            
+            if (!isAuto) {
+              // Show a notification only for manual clicks
+              Office.context.mailbox.item.notificationMessages.addAsync("signatureNotification", {
+                type: "informationalMessage",
+                message: "Simtech signature inserted successfully! ✅",
+                icon: "Icon.80x80",
+                persistent: false
+              });
+            }
+          } else {
+            console.error('Error inserting signature:', setResult.error.message);
         }
         
         // Signal that the command is complete
