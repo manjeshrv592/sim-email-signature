@@ -14,16 +14,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Block official production domain during testing
-    if (email.toLowerCase().endsWith("@simtechitsolutions.in")) {
-      return new NextResponse("", {
-        status: 200,
-        headers: {
-          "Content-Type": "text/html",
-        },
-      });
-    }
-
     // Fetch user from Microsoft Graph API (Azure AD)
     const user = await getUserByEmail(email.toLowerCase());
 
