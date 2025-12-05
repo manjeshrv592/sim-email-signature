@@ -1,4 +1,3 @@
-import { getCertificationLogos } from './certifications';
 import { getOfficeAddress } from './addresses';
 
 interface SignatureData {
@@ -15,9 +14,6 @@ interface SignatureData {
 }
 
 export function generateSignatureHtml(data: SignatureData): string {
-  // Get certification logos based on user's country
-  const certifications = getCertificationLogos(data.usageLocation);
-  
   // Get office address based on user's country
   const address = getOfficeAddress(data.usageLocation);
   
@@ -76,6 +72,18 @@ export function generateSignatureHtml(data: SignatureData): string {
                         ${address.buildingName}
                       </div>
                     </td>
+                    <td style="vertical-align: bottom; padding-left: 48px;">
+                      <img
+                        src="https://sim-email-signature.vercel.app/iso-logo.png"
+                        alt="ISO Logo"
+                        height="64"
+                        style="
+                          height: 64px;
+                          width: auto;
+                          display: block;
+                        "
+                      />
+                    </td>
                   </tr>
                 </table>
               </td>
@@ -101,29 +109,6 @@ export function generateSignatureHtml(data: SignatureData): string {
           </table>
         </td>
       </tr>
-      ${certifications.length > 0 ? `
-      <tr>
-        <td colspan="2" style="padding-top: 16px;">
-          <div style="border-top: 1px solid #e5e5e5; padding-top: 12px;">
-            <div style="font-size: 11px; color: #737373; margin-bottom: 8px;">Certified & Compliant</div>
-            <table cellpadding="0" cellspacing="0" border="0">
-              <tr>
-                ${certifications.map((cert, index) => `
-                  <td style="padding-right: ${index < certifications.length - 1 ? '10px' : '0'}; vertical-align: middle;">
-                    <img 
-                      src="${cert.base64}" 
-                      alt="${cert.alt}" 
-                      title="${cert.name}"
-                      style="height: 40px; width: auto; display: block;"
-                    />
-                  </td>
-                `).join('')}
-              </tr>
-            </table>
-          </div>
-        </td>
-      </tr>
-      ` : ''}
     </table>
   `;
 }
