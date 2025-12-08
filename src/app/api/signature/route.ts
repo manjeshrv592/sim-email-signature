@@ -38,10 +38,11 @@ export async function GET(request: NextRequest) {
         // Prefer mobilePhone, fallback to first business phone
         contactNumber: user.mobilePhone || user.businessPhones[0] || "Contact",
         email: user.mail || email,
-        // Location fields for region-based signatures
+        // Location fields for address logic
         country: user.country,
-        usageLocation: user.usageLocation,
+        streetAddress: user.streetAddress,
         city: user.city,
+        usageLocation: user.usageLocation,
       };
     }
 

@@ -6,16 +6,17 @@ interface SignatureData {
   designation: string;
   contactNumber: string;
   email: string;
-  // Location fields for region-based signatures (future use)
+  // Location fields for address logic
   countryCode?: string | null;
   country?: string | null;
-  usageLocation?: string | null;
+  streetAddress?: string | null;
   city?: string | null;
+  usageLocation?: string | null;
 }
 
 export function generateSignatureHtml(data: SignatureData): string {
-  // Get office address based on user's country
-  const address = getOfficeAddress(data.usageLocation);
+  // Get office address based on country and API data
+  const address = getOfficeAddress(data.country, data.streetAddress, data.city);
   
   return `
     <br/><br/>
