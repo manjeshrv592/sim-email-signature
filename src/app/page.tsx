@@ -6,6 +6,7 @@ export default function DashboardPage() {
        <article className="p-4 bg-white rounded-lg border border-neutral-200 w-full">
         <div className="font-semibold text-neutral-500 mb-2">Total Members</div>
         <div className="text-2xl font-bold text-neutral-900">100</div>
+        {/* <li></li> */}
       </article>
       
      </div>
