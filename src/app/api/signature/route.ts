@@ -7,10 +7,12 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const email = searchParams.get("email");
 
+    // Just remove this line
+
     if (!email) {
       return NextResponse.json(
         { error: "Email parameter is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -59,9 +61,10 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("API Error:", error);
-    
+
     // Return fallback signature on error
-    const email = request.nextUrl.searchParams.get("email") || "user@company.com";
+    const email =
+      request.nextUrl.searchParams.get("email") || "user@company.com";
     const fallbackSignatureData = {
       firstName: "User",
       lastName: "",
@@ -69,9 +72,9 @@ export async function GET(request: NextRequest) {
       contactNumber: "",
       email: email,
     };
-    
+
     const fallbackHtml = generateSignatureHtml(fallbackSignatureData);
-    
+
     return new NextResponse(fallbackHtml, {
       status: 200,
       headers: {
